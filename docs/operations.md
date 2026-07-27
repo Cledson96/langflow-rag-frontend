@@ -24,4 +24,4 @@ O container publica somente `127.0.0.1:3020`; Nginx é o único serviço exposto
 
 ## Verificação e rollback
 
-Após o deploy, valide `https://app-langflow.cledson.com.br/api/health`. O script aguarda até 30 segundos por esse endpoint antes de publicar Nginx. Para rollback, execute manualmente o workflow `Deploy` e preencha `image_tag` com uma tag GHCR já publicada (por exemplo, o SHA curto ou completo do commit desejado). Com `image_tag` preenchida, o workflow não constrói nem publica uma imagem: ele publica exatamente a tag selecionada no VPS.
+Após o deploy, valide `https://app-langflow.cledson.com.br/api/health`. O script aguarda até 30 segundos por esse endpoint antes de publicar Nginx. Para rollback, execute manualmente o workflow `Deploy` e preencha `image_tag` com uma tag GHCR já publicada: use um SHA completo de commit ou `latest`. Com `image_tag` preenchida, o workflow não constrói nem publica uma imagem: ele publica exatamente a tag selecionada no VPS.

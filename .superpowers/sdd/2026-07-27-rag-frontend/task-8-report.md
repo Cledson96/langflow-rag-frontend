@@ -54,3 +54,8 @@
    `bash -n scripts/deploy-docker.sh` e `git diff --check` — aprovados.
 5. `docker build --progress=plain -t langflow-rag-frontend:smoke .` —
    aprovado; produziu a imagem `langflow-rag-frontend:smoke`.
+
+### Ajuste documental final
+
+- A instrução de rollback agora aceita somente uma tag publicada `latest` ou
+  o SHA completo do commit; SHA curto não é uma tag publicada pelo workflow.
