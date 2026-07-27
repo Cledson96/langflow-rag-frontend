@@ -1,0 +1,87 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: langflow-rag-frontend-production
+  cancel-in-progress: false
+
+env:
+  IMAGE: ghcr.io/cledson96/langflow-rag-frontend
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ env.IMAGE }}:${{ github.sha }},${{ env.IMAGE }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p "${{ secrets.VPS_PORT }}" -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts
+      - name: Create production environment
+        run: |
+          cat > /tmp/app.env <<EOF
+          FRONTEND_IMAGE=${{ env.IMAGE }}:${{ github.sha }}
+          APP_PORT=3020
+          EOF
+          cat > /tmp/app.env.production <<EOF
+          NODE_ENV=production
+          API_BASE_URL=https://api-langflow.cledson.com.br
+          NEXT_PUBLIC_APP_URL=https://app-langflow.cledson.com.br
+          SESSION_COOKIE_NAME=langflow_rag_session
+          EOF
+          cat > /tmp/ghcr.env <<EOF
+          GHCR_USERNAME=${{ github.repository_owner }}
+          GHCR_TOKEN=${{ secrets.GHCR_PULL_TOKEN }}
+          CERTBOT_EMAIL=${{ secrets.CERTBOT_EMAIL }}
+          EOF
+      - name: Upload and deploy
+        env:
+          DEPLOY_PATH: /opt/langflow-rag-frontend
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          tar -czf /tmp/infra.tgz docker-compose.yml deploy scripts
+          scp -i ~/.ssh/id_ed25519 -P "$VPS_PORT" /tmp/infra.tgz /tmp/app.env /tmp/app.env.production /tmp/ghcr.env "$VPS_USER@$VPS_HOST:/tmp/"
+          ssh -i ~/.ssh/id_ed25519 -p "$VPS_PORT" "$VPS_USER@$VPS_HOST" "set -euo pipefail; sudo mkdir -p '$DEPLOY_PATH'; sudo tar -xzf /tmp/infra.tgz -C '$DEPLOY_PATH'; sudo mv /tmp/app.env '$DEPLOY_PATH/.env'; sudo mv /tmp/app.env.production '$DEPLOY_PATH/.env.production'; sudo mv /tmp/ghcr.env '$DEPLOY_PATH/.deploy-secrets'; sudo chmod 600 '$DEPLOY_PATH/.deploy-secrets'; sudo DEPLOY_PATH='$DEPLOY_PATH' FRONTEND_IMAGE='${{ env.IMAGE }}:${{ github.sha }}' APP_PORT='3020' bash '$DEPLOY_PATH/scripts/deploy-docker.sh'"
