@@ -32,7 +32,7 @@ import {
 
 const requestTimeoutMs = 30_000;
 const tokenSchema = z.string().min(1);
-const identifierSchema = z.string().trim().min(1);
+const identifierSchema = z.string().uuid();
 const jsonContentType = 'application/json';
 
 export type Fetcher = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;

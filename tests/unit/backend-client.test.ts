@@ -70,4 +70,13 @@ describe('createBackendClient', () => {
 
     await expect(createBackendClient(fetcher, apiBaseUrl).getProjects(sessionToken)).rejects.toBeInstanceOf(BackendApiError);
   });
+
+  it('rejects an invalid project id before constructing a conversation URL', async () => {
+    const fetcher = vi.fn<Fetcher>();
+
+    await expect(
+      createBackendClient(fetcher, apiBaseUrl).getConversations(sessionToken, 'not-a-uuid'),
+    ).rejects.toThrow();
+    expect(fetcher).not.toHaveBeenCalled();
+  });
 });
