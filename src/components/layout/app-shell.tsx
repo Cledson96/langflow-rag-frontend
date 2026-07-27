@@ -1,3 +1,5 @@
+'use client';
+
 import { Layout, Typography } from 'antd';
 
 type AppShellProps = {

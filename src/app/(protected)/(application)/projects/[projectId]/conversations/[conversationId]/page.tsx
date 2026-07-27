@@ -1,4 +1,3 @@
-import { Typography } from 'antd';
 import { notFound } from 'next/navigation';
 import { z } from 'zod';
 
@@ -31,7 +30,7 @@ export default async function ConversationPage({ params }: Readonly<Conversation
 
   return (
     <>
-      <Typography.Title level={1}>Conversa</Typography.Title>
+      <h1 style={{ marginTop: 0 }}>Conversa</h1>
       <ChatClient conversationId={conversationId.data} initialMessages={messages} projectId={projectId.data} />
     </>
   );

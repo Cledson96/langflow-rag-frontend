@@ -1,5 +1,11 @@
 # Operação
 
+## Teste E2E local
+
+Execute `npm run test:e2e` para validar o fluxo cadastro → projeto → conversa → mensagem → fonte. A configuração do Playwright sobe um backend efêmero em `127.0.0.1:3911`, inicia o Next com `API_BASE_URL` local e intercepta no navegador as chamadas BFF em `/api/**`. Os fixtures usam apenas dados sintéticos e uma sessão `HttpOnly` de teste: nenhum segredo, JWT de produção ou chamada para `api-langflow.cledson.com.br` é necessário.
+
+Se o Chromium ainda não existir na máquina de desenvolvimento, execute `npx playwright install chromium` uma vez. A porta 3911 deve estar livre durante o teste.
+
 ## Secrets GitHub (environment `production`)
 
 Configure `VPS_HOST`, `VPS_PORT`, `VPS_USER`, `VPS_SSH_KEY`, `VPS_SSH_KNOWN_HOSTS` e `GHCR_PULL_TOKEN`. `CERTBOT_EMAIL` é opcional, mas recomendado para receber avisos sobre renovação do certificado.
