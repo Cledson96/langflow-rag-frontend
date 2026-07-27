@@ -27,5 +27,30 @@
 ## Observações
 
 - A suíte completa mantém avisos preexistentes do Ant Design/jsdom (`getComputedStyle` com pseudo-elementos e atualizações fora de `act`), sem falhas.
-- O smoke build Docker foi iniciado com `docker build -t langflow-rag-frontend:smoke .`, mas o executor local interrompeu o processo durante `next build` antes de produzir a imagem. O Dockerfile alcançou a compilação do Next; a conclusão do smoke build deve ser reexecutada em ambiente sem esse limite.
 - O workflow não inclui JWT ou credenciais de backend no ambiente público. Apenas `NEXT_PUBLIC_APP_URL` é exposto ao navegador; os demais valores ficam no arquivo local do VPS.
+
+---
+
+## Correção de segurança e rollback
+
+- O workflow não usa mais `ssh-keyscan`. Ele exige o secret
+  `VPS_SSH_KNOWN_HOSTS`, grava a entrada previamente verificada em
+  `~/.ssh/known_hosts` e usa `StrictHostKeyChecking=yes` tanto no SCP
+  quanto no SSH.
+- Certbot recebe `--keep-until-expiring`, mantendo certificados válidos
+  durante redeploys e evitando reemissão desnecessária.
+- `workflow_dispatch` aceita `image_tag`. Quando fornecida, a etapa de
+  build é pulada e o VPS recebe exatamente a tag GHCR selecionada, permitindo
+  rollback sem alterar arquivos diretamente no servidor.
+
+### TDD e verificação da correção
+
+1. `deployment-config.test.ts` falhou primeiro porque o workflow ainda
+   confiava em `ssh-keyscan`, não tinha `image_tag` e o script não usava
+   `--keep-until-expiring`.
+2. Após a correção, os 2 testes de configuração e o teste de health passaram.
+3. `npm test -- --reporter=dot` — 16 arquivos e 51 testes aprovados.
+4. `npm run lint`, `npm run typecheck`, `docker compose config`,
+   `bash -n scripts/deploy-docker.sh` e `git diff --check` — aprovados.
+5. `docker build --progress=plain -t langflow-rag-frontend:smoke .` —
+   aprovado; produziu a imagem `langflow-rag-frontend:smoke`.

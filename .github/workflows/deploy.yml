@@ -4,6 +4,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      image_tag:
+        description: Tag GHCR existente para deploy ou rollback; deixe vazio para construir o commit atual.
+        required: false
+        type: string
 
 concurrency:
   group: langflow-rag-frontend-production
@@ -14,6 +19,7 @@ env:
 
 jobs:
   build:
+    if: github.event_name != 'workflow_dispatch' || inputs.image_tag == ''
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -45,6 +51,11 @@ jobs:
 
   deploy:
     needs: build
+    if: >-
+      ${{
+        always() && (needs.build.result == 'success' ||
+        (github.event_name == 'workflow_dispatch' && inputs.image_tag != ''))
+      }}
     runs-on: ubuntu-latest
     environment: production
     permissions:
@@ -53,15 +64,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Configure SSH
+        env:
+          VPS_SSH_KNOWN_HOSTS: ${{ secrets.VPS_SSH_KNOWN_HOSTS }}
         run: |
           install -m 700 -d ~/.ssh
           printf '%s\n' "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -p "${{ secrets.VPS_PORT }}" -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts
+          test -n "$VPS_SSH_KNOWN_HOSTS"
+          printf '%s\n' "$VPS_SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
       - name: Create production environment
         run: |
           cat > /tmp/app.env <<EOF
-          FRONTEND_IMAGE=${{ env.IMAGE }}:${{ github.sha }}
+          FRONTEND_IMAGE=${{ env.IMAGE }}:${{ inputs.image_tag || github.sha }}
           APP_PORT=3020
           EOF
           cat > /tmp/app.env.production <<EOF
@@ -83,5 +98,5 @@ jobs:
           VPS_USER: ${{ secrets.VPS_USER }}
         run: |
           tar -czf /tmp/infra.tgz docker-compose.yml deploy scripts
-          scp -i ~/.ssh/id_ed25519 -P "$VPS_PORT" /tmp/infra.tgz /tmp/app.env /tmp/app.env.production /tmp/ghcr.env "$VPS_USER@$VPS_HOST:/tmp/"
-          ssh -i ~/.ssh/id_ed25519 -p "$VPS_PORT" "$VPS_USER@$VPS_HOST" "set -euo pipefail; sudo mkdir -p '$DEPLOY_PATH'; sudo tar -xzf /tmp/infra.tgz -C '$DEPLOY_PATH'; sudo mv /tmp/app.env '$DEPLOY_PATH/.env'; sudo mv /tmp/app.env.production '$DEPLOY_PATH/.env.production'; sudo mv /tmp/ghcr.env '$DEPLOY_PATH/.deploy-secrets'; sudo chmod 600 '$DEPLOY_PATH/.deploy-secrets'; sudo DEPLOY_PATH='$DEPLOY_PATH' FRONTEND_IMAGE='${{ env.IMAGE }}:${{ github.sha }}' APP_PORT='3020' bash '$DEPLOY_PATH/scripts/deploy-docker.sh'"
+          scp -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" -i ~/.ssh/id_ed25519 -P "$VPS_PORT" /tmp/infra.tgz /tmp/app.env /tmp/app.env.production /tmp/ghcr.env "$VPS_USER@$VPS_HOST:/tmp/"
+          ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" -i ~/.ssh/id_ed25519 -p "$VPS_PORT" "$VPS_USER@$VPS_HOST" "set -euo pipefail; sudo mkdir -p '$DEPLOY_PATH'; sudo tar -xzf /tmp/infra.tgz -C '$DEPLOY_PATH'; sudo mv /tmp/app.env '$DEPLOY_PATH/.env'; sudo mv /tmp/app.env.production '$DEPLOY_PATH/.env.production'; sudo mv /tmp/ghcr.env '$DEPLOY_PATH/.deploy-secrets'; sudo chmod 600 '$DEPLOY_PATH/.deploy-secrets'; sudo DEPLOY_PATH='$DEPLOY_PATH' FRONTEND_IMAGE='${{ env.IMAGE }}:${{ inputs.image_tag || github.sha }}' APP_PORT='3020' bash '$DEPLOY_PATH/scripts/deploy-docker.sh'"

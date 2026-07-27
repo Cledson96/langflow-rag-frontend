@@ -32,7 +32,7 @@ ln -sf /etc/nginx/sites-available/app-langflow.cledson.com.br.conf /etc/nginx/si
 nginx -t && systemctl reload nginx
 
 if [ "${ENABLE_CERTBOT:-true}" = 'true' ]; then
-  certbot_args=(--nginx --non-interactive --agree-tos -d app-langflow.cledson.com.br)
+  certbot_args=(--nginx --non-interactive --agree-tos --keep-until-expiring -d app-langflow.cledson.com.br)
   if [ -n "${CERTBOT_EMAIL:-}" ]; then
     certbot_args+=(-m "$CERTBOT_EMAIL")
   else
