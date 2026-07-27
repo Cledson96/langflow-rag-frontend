@@ -1,11 +1,34 @@
-import { render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+const { readSessionToken, redirect } = vi.hoisted(() => ({
+  readSessionToken: vi.fn(),
+  redirect: vi.fn(),
+}));
+
+vi.mock('@/lib/session', () => ({ readSessionToken }));
+vi.mock('next/navigation', () => ({ redirect }));
 
 import Home from '@/app/page';
 
 describe('Home', () => {
-  it('renders Langflow RAG', () => {
-    render(<Home />);
+  beforeEach(() => {
+    readSessionToken.mockReset();
+    redirect.mockReset();
+  });
 
-    expect(screen.getByRole('heading', { name: 'Langflow RAG' })).toBeVisible();
+  it('redireciona visitantes para o login', async () => {
+    readSessionToken.mockResolvedValue(undefined);
+
+    await Home();
+
+    expect(redirect).toHaveBeenCalledWith('/login');
+  });
+
+  it('redireciona uma sessão existente para projetos', async () => {
+    readSessionToken.mockResolvedValue('session-token');
+
+    await Home();
+
+    expect(redirect).toHaveBeenCalledWith('/projects');
   });
 });

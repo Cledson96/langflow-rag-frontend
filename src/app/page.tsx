@@ -1,3 +1,11 @@
-export default function Home() {
-  return <h1>Langflow RAG</h1>;
+import { redirect } from 'next/navigation';
+
+import { readSessionToken } from '@/lib/session';
+
+export default async function Home() {
+  const token = await readSessionToken();
+
+  redirect(token === undefined ? '/login' : '/projects');
+
+  return null;
 }
