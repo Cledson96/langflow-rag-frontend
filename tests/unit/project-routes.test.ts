@@ -120,4 +120,21 @@ describe('project BFF routes', () => {
       expect.objectContaining({ body: JSON.stringify({ modelId: conversation.modelId, title: conversation.title }), method: 'POST' }),
     );
   });
+
+  it('rejects a model outside the frontend allowlist before calling the backend', async () => {
+    const fetcher = vi.fn<typeof fetch>();
+    vi.stubGlobal('fetch', fetcher);
+
+    const response = await createConversation(
+      request(`/api/projects/${projectId}/conversations`, 'POST', {
+        modelId: 'openai/gpt-4.1',
+        title: conversation.title,
+      }),
+      { params: Promise.resolve({ projectId }) },
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({ error: 'Dados da conversa inválidos.' });
+    expect(fetcher).not.toHaveBeenCalled();
+  });
 });

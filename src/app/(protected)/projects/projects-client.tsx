@@ -2,6 +2,7 @@
 
 import { Button, Empty, Flex, List, Typography } from 'antd';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import CreateProjectModal from './components/create-project-modal';
@@ -12,11 +13,13 @@ type ProjectsClientProps = {
 };
 
 export default function ProjectsClient({ initialProjects }: Readonly<ProjectsClientProps>) {
+  const router = useRouter();
   const [projects, setProjects] = useState(initialProjects);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   function addProject(project: Project): void {
     setProjects((currentProjects) => [...currentProjects, project]);
+    router.refresh();
   }
 
   return (

@@ -27,6 +27,7 @@ function errorMessage(body: unknown): string {
 
 export default function CreateProjectModal({ onCancel, onCreated, open }: Readonly<CreateProjectModalProps>) {
   const [error, setError] = useState<string>();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [form] = Form.useForm<ProjectFormValues>();
 
   function close(): void {
@@ -36,7 +37,12 @@ export default function CreateProjectModal({ onCancel, onCreated, open }: Readon
   }
 
   async function onFinish(values: ProjectFormValues): Promise<void> {
+    if (isSubmitting) {
+      return;
+    }
+
     setError(undefined);
+    setIsSubmitting(true);
 
     try {
       const response = await fetch('/api/projects', {
@@ -58,6 +64,8 @@ export default function CreateProjectModal({ onCancel, onCreated, open }: Readon
       close();
     } catch {
       setError('Não foi possível criar o projeto.');
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -71,7 +79,7 @@ export default function CreateProjectModal({ onCancel, onCreated, open }: Readon
         <Form.Item label="Slug" name="slug" rules={[{ required: true, message: 'Informe o slug do projeto.' }]}>
           <Input maxLength={120} />
         </Form.Item>
-        <Button htmlType="submit" type="primary">
+        <Button disabled={isSubmitting} htmlType="submit" loading={isSubmitting} type="primary">
           Criar
         </Button>
       </Form>

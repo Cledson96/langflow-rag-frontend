@@ -12,14 +12,16 @@ const project = {
 };
 const conversationId = '7e3bf271-6a53-4d60-bc6d-f1e117335f33';
 const push = vi.fn();
+const refresh = vi.fn();
 
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push }),
+  useRouter: () => ({ push, refresh }),
 }));
 
 describe('ProjectsClient', () => {
   beforeEach(() => {
     push.mockReset();
+    refresh.mockReset();
     vi.stubGlobal('fetch', vi.fn());
   });
 
@@ -61,13 +63,38 @@ describe('ProjectsClient', () => {
         headers: { 'Content-Type': 'application/json' },
         method: 'POST',
       });
+      expect(refresh).toHaveBeenCalledOnce();
     });
+  });
+
+  it('disables project creation while the request is pending to prevent duplicate submissions', async () => {
+    const user = userEvent.setup();
+    let resolveRequest: (response: Response) => void;
+    vi.mocked(fetch).mockReturnValue(
+      new Promise<Response>((resolve) => {
+        resolveRequest = resolve;
+      }),
+    );
+    render(<ProjectsClient initialProjects={[]} />);
+
+    await user.click(screen.getByRole('button', { name: 'Criar projeto' }));
+    await user.type(screen.getByLabelText('Nome do projeto'), project.name);
+    await user.type(screen.getByLabelText('Slug'), project.slug);
+    const createButton = screen.getByText('Criar').closest('button');
+    expect(createButton).not.toBeNull();
+    await user.click(createButton as HTMLButtonElement);
+    await user.click(createButton as HTMLButtonElement);
+
+    expect(fetch).toHaveBeenCalledOnce();
+    expect(createButton).toBeDisabled();
+    resolveRequest!(new Response(JSON.stringify({ project }), { headers: { 'content-type': 'application/json' } }));
   });
 });
 
 describe('CreateConversationModal', () => {
   beforeEach(() => {
     push.mockReset();
+    refresh.mockReset();
     vi.stubGlobal('fetch', vi.fn());
   });
 
@@ -104,5 +131,41 @@ describe('CreateConversationModal', () => {
       expect(JSON.parse(String(request?.body))).toEqual({ modelId: 'openai/gpt-4.1-mini', title: 'Dúvidas iniciais' });
       expect(push).toHaveBeenCalledWith(`/projects/${project.id}/conversations/${conversationId}`);
     });
+  });
+
+  it('disables conversation creation while the request is pending to prevent duplicate submissions', async () => {
+    const user = userEvent.setup();
+    let resolveRequest: (response: Response) => void;
+    vi.mocked(fetch).mockReturnValue(
+      new Promise<Response>((resolve) => {
+        resolveRequest = resolve;
+      }),
+    );
+    render(<CreateConversationModal open projectId={project.id} onCancel={vi.fn()} />);
+
+    await user.type(screen.getByLabelText('Título'), 'Dúvidas iniciais');
+    const createButton = screen.getAllByText('Criar conversa').find((element) => element.closest('button'))?.closest('button');
+    expect(createButton).not.toBeNull();
+    await user.click(createButton as HTMLButtonElement);
+    await user.click(createButton as HTMLButtonElement);
+
+    expect(fetch).toHaveBeenCalledOnce();
+    expect(createButton).toBeDisabled();
+    resolveRequest!(
+      new Response(
+        JSON.stringify({
+          conversation: {
+            createdAt: '2026-07-27T10:00:00.000Z',
+            createdByUserId: 'user-1',
+            id: conversationId,
+            modelId: 'openai/gpt-4.1-mini',
+            projectId: project.id,
+            title: 'Dúvidas iniciais',
+            updatedAt: '2026-07-27T10:00:00.000Z',
+          },
+        }),
+        { headers: { 'content-type': 'application/json' } },
+      ),
+    );
   });
 });

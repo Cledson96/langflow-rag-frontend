@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { allowedModelIds } from '@/config/models';
+
 export const userSchema = z.object({
   email: z.string().email(),
   id: z.string().min(1),
@@ -62,7 +64,7 @@ export const createProjectInputSchema = z.object({
 });
 
 export const createConversationInputSchema = z.object({
-  modelId: z.string().min(1).optional(),
+  modelId: z.enum(allowedModelIds),
   title: z.string().trim().min(1).max(200).optional(),
 });
 

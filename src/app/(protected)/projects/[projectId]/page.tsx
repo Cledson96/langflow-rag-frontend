@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { z } from 'zod';
 
 import ProjectClient from './project-client';
@@ -26,6 +26,13 @@ export default async function ProjectPage({ params }: Readonly<ProjectPageProps>
   }
 
   const conversations = await createBackendClient(fetch).getConversations(token, parsedProjectId.data);
+
+  const firstConversation = conversations[0];
+
+  if (firstConversation !== undefined) {
+    redirect(`/projects/${parsedProjectId.data}/conversations/${firstConversation.id}`);
+    return null;
+  }
 
   return <ProjectClient conversations={conversations} projectId={parsedProjectId.data} />;
 }
