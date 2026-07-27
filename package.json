@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.62.0",
+    "@tailwindcss/postcss": "^4.3.3",
     "@testing-library/jest-dom": "latest",
     "@testing-library/react": "latest",
     "@testing-library/user-event": "latest",
@@ -32,6 +33,7 @@
     "eslint-config-next": "16.2.12",
     "jsdom": "latest",
     "playwright": "latest",
+    "tailwindcss": "^4.3.3",
     "typescript": "^5",
     "vitest": "latest"
   }
