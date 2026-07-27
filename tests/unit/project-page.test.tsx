@@ -16,7 +16,7 @@ vi.mock('@/services/backend-client', () => ({
   createBackendClient: vi.fn(() => ({ getConversations })),
 }));
 
-import ProjectPage from '@/app/(protected)/projects/[projectId]/page';
+import ProjectPage from '@/app/(protected)/(application)/projects/[projectId]/page';
 
 const projectId = '94e5d171-1db4-4a92-8c72-4da2c1f51fd2';
 const conversationId = '7e3bf271-6a53-4d60-bc6d-f1e117335f33';

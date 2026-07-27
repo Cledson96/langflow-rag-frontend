@@ -2,8 +2,8 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import ProjectsClient from '@/app/(protected)/projects/projects-client';
-import CreateConversationModal from '@/app/(protected)/projects/[projectId]/create-conversation-modal';
+import ProjectsClient from '@/app/(protected)/(application)/projects/projects-client';
+import CreateConversationModal from '@/app/(protected)/(application)/projects/[projectId]/create-conversation-modal';
 
 const project = {
   id: '94e5d171-1db4-4a92-8c72-4da2c1f51fd2',

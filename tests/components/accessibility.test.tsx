@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
 import LoginForm from '@/app/(auth)/login/login-form';
-import ChatClient from '@/app/(protected)/projects/[projectId]/conversations/[conversationId]/chat-client';
+import ChatClient from '@/app/(protected)/(application)/projects/[projectId]/conversations/[conversationId]/chat-client';
 import { metadata } from '@/app/layout';
 
 vi.mock('next/navigation', () => ({
@@ -78,7 +78,7 @@ describe('accessible product entry points', () => {
   it('announces protected and conversation loading states', async () => {
     const [{ default: ProtectedLoading }, { default: ConversationLoading }] = await Promise.all([
       import('@/app/(protected)/loading'),
-      import('@/app/(protected)/projects/[projectId]/conversations/[conversationId]/loading'),
+      import('@/app/(protected)/(application)/projects/[projectId]/conversations/[conversationId]/loading'),
     ]);
 
     const { rerender } = render(<ProtectedLoading />);
