@@ -367,6 +367,12 @@ a {
   overflow: hidden;
 }
 
+.chat-workspace.chat-boot {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
 .conversation-rail {
   background: #fafbfe;
   border-right: 1px solid #e9edf3;

@@ -12,7 +12,7 @@ import {
 } from '@ant-design/icons';
 import { Alert, Avatar, Button, Collapse, Flex, Input, Select, Spin, Tag, Tooltip, Typography, message } from 'antd';
 import { useRouter } from 'next/navigation';
-import { forwardRef, useMemo, useState } from 'react';
+import { forwardRef, useEffect, useMemo, useState } from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -108,7 +108,12 @@ export default function ChatClient({
   const [changingModel, setChangingModel] = useState(false);
   const [content, setContent] = useState('');
   const [error, setError] = useState<string>();
+  const [mounted, setMounted] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const items = useMemo<BubbleItemType[]>(() => {
     const chronological = [...messages].sort((first, second) => first.createdAt.localeCompare(second.createdAt));
@@ -177,6 +182,14 @@ export default function ChatClient({
     } finally {
       setChangingModel(false);
     }
+  }
+
+  if (!mounted) {
+    return (
+      <main className="chat-workspace chat-boot">
+        <Spin size="large" />
+      </main>
+    );
   }
 
   return (
