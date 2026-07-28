@@ -204,15 +204,15 @@ a {
 }
 
 .projects-hero h1 {
-  color: #fff;
+  color: #fff !important;
   font-size: clamp(32px, 4vw, 48px);
   letter-spacing: -0.045em;
   line-height: 1.08;
   margin: 15px 0;
 }
 
-.projects-hero p {
-  color: rgba(255, 255, 255, 0.75);
+.projects-hero .ant-typography:not(h1) {
+  color: rgba(255, 255, 255, 0.78) !important;
   font-size: 16px;
   line-height: 1.65;
   max-width: 590px;
@@ -268,7 +268,7 @@ a {
 }
 
 .section-title {
-  margin: 38px 0 18px;
+  margin: 38px 0 18px !important;
 }
 
 .section-title h2,
