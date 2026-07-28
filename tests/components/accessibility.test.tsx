@@ -60,8 +60,8 @@ describe('accessible product entry points', () => {
     expect(screen.getByLabelText('Mensagem')).toBeVisible();
     expect(screen.getByRole('button', { name: 'Enviar' })).toBeVisible();
     expect(metadata.title).toEqual({
-      default: 'Langflow RAG',
-      template: '%s | Langflow RAG',
+      default: 'Gobrax AI',
+      template: '%s | Gobrax AI',
     });
   });
 

@@ -10,8 +10,8 @@ export default function AppProvider({ children }: PropsWithChildren) {
         token: {
           borderRadius: 12,
           colorBgLayout: '#f4f7fb',
-          colorPrimary: '#6d5dfc',
-          colorText: '#172033',
+          colorPrimary: '#171717',
+          colorText: '#171717',
           colorTextSecondary: '#6b7280',
           fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
         },

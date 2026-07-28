@@ -2,7 +2,6 @@
 
 import {
   AppstoreOutlined,
-  BulbOutlined,
   LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -59,12 +58,11 @@ export default function AppShell({ children, projects, user }: Readonly<AppShell
   const sidebar = (
     <div className="app-sidebar-content">
       <Link className="app-brand" href="/projects">
-        <span className="app-brand-mark">
-          <BulbOutlined />
+        <span aria-label="Gobrax AI" className="brand-wordmark">
+          <b>go</b>brax <em>AI</em>
         </span>
         <span>
-          <strong>JusCash AI</strong>
-          <small>Workspace inteligente</small>
+          <small>Inteligência para sua operação</small>
         </span>
       </Link>
 
@@ -100,7 +98,7 @@ export default function AppShell({ children, projects, user }: Readonly<AppShell
           trigger={['click']}
         >
           <button className="sidebar-user-button" type="button">
-            <Avatar style={{ background: '#6d5dfc' }}>{initials(user)}</Avatar>
+            <Avatar style={{ background: '#171717', color: '#ffd21a' }}>{initials(user)}</Avatar>
             <span>
               <strong>{user.name || 'Minha conta'}</strong>
               <small>{user.role === 'ADMIN' ? 'Administrador' : 'Usuário'}</small>
@@ -137,10 +135,11 @@ export default function AppShell({ children, projects, user }: Readonly<AppShell
             type="text"
           />
           <Flex align="center" gap={10}>
-            <span className="app-brand-mark compact"><BulbOutlined /></span>
-            <strong>JusCash AI</strong>
+            <span aria-label="Gobrax AI" className="brand-wordmark compact">
+              <b>go</b>brax <em>AI</em>
+            </span>
           </Flex>
-          <Avatar size="small" style={{ background: '#6d5dfc' }}>{initials(user)}</Avatar>
+          <Avatar size="small" style={{ background: '#171717', color: '#ffd21a' }}>{initials(user)}</Avatar>
         </Layout.Header>
         <Layout.Content className="app-content">{children}</Layout.Content>
       </Layout>

@@ -44,24 +44,34 @@ a {
   padding: 8px 10px 20px;
 }
 
-.app-brand-mark {
-  align-items: center;
-  background: linear-gradient(135deg, #6d5dfc, #8b7cff);
-  border-radius: 13px;
-  box-shadow: 0 8px 18px rgba(109, 93, 252, 0.28);
-  color: white;
-  display: inline-flex;
-  font-size: 20px;
-  height: 42px;
-  justify-content: center;
-  width: 42px;
+.brand-wordmark {
+  color: #171717;
+  font-size: 22px;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1;
+  white-space: nowrap;
 }
 
-.app-brand-mark.compact {
-  border-radius: 9px;
-  font-size: 15px;
-  height: 30px;
-  width: 30px;
+.brand-wordmark b {
+  color: #f2c500;
+}
+
+.brand-wordmark em {
+  background: #171717;
+  border-radius: 6px;
+  color: #ffd21a;
+  font-size: 10px;
+  font-style: normal;
+  letter-spacing: 0;
+  margin-left: 4px;
+  padding: 3px 5px;
+  vertical-align: 3px;
+}
+
+.brand-wordmark.compact {
+  font-size: 19px;
 }
 
 .app-brand strong,
@@ -102,7 +112,7 @@ a {
 }
 
 .sidebar-section-header a {
-  color: #6d5dfc;
+  color: #d5aa00;
 }
 
 .project-menu {
@@ -185,9 +195,9 @@ a {
   align-items: center;
   background:
     radial-gradient(circle at 88% 20%, rgba(255, 255, 255, 0.24), transparent 24%),
-    linear-gradient(120deg, #171337 0%, #4939b9 58%, #7a68ff 100%);
+    linear-gradient(120deg, #111111 0%, #252525 64%, #665400 100%);
   border-radius: 26px;
-  box-shadow: 0 22px 50px rgba(69, 52, 178, 0.18);
+  box-shadow: 0 22px 50px rgba(17, 17, 17, 0.18);
   color: #fff;
   display: flex;
   justify-content: space-between;
@@ -257,7 +267,7 @@ a {
   background: #fff;
   border-radius: 50%;
   bottom: 4px;
-  color: #6d5dfc;
+  color: #c49c00;
   display: flex;
   font-size: 21px;
   height: 50px;
@@ -302,9 +312,9 @@ a {
 .project-card-icon,
 .model-table-icon {
   align-items: center;
-  background: #f0edff;
+  background: #fff8cf;
   border-radius: 14px;
-  color: #6d5dfc;
+  color: #9b7b00;
   display: inline-flex;
   font-size: 23px;
   height: 48px;
@@ -320,7 +330,7 @@ a {
 
 .project-card-footer {
   border-top: 1px solid #edf0f5;
-  color: #6d5dfc;
+  color: #9b7b00;
   font-size: 13px;
   font-weight: 600;
   margin-top: 26px;
@@ -339,7 +349,7 @@ a {
 }
 
 .eyebrow {
-  color: #6d5dfc !important;
+  color: #9b7b00 !important;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -445,8 +455,8 @@ a {
 }
 
 .chat-scroll .ant-bubble-placement-end .ant-bubble-content {
-  background: linear-gradient(135deg, #6d5dfc, #7d6dfd);
-  box-shadow: 0 8px 18px rgba(109, 93, 252, 0.16);
+  background: linear-gradient(135deg, #171717, #343434);
+  box-shadow: 0 8px 18px rgba(17, 17, 17, 0.16);
   color: white;
 }
 
@@ -457,7 +467,7 @@ a {
 }
 
 .assistant-avatar {
-  background: linear-gradient(135deg, #171337, #6d5dfc) !important;
+  background: linear-gradient(135deg, #171717, #d5aa00) !important;
 }
 
 .user-avatar {
@@ -562,9 +572,9 @@ a {
 
 .chat-empty > span {
   align-items: center;
-  background: linear-gradient(135deg, #171337, #6d5dfc);
+  background: linear-gradient(135deg, #171717, #d5aa00);
   border-radius: 22px;
-  box-shadow: 0 14px 32px rgba(74, 57, 190, 0.2);
+  box-shadow: 0 14px 32px rgba(17, 17, 17, 0.2);
   color: #fff;
   display: flex;
   font-size: 32px;
