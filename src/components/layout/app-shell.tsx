@@ -11,7 +11,7 @@ import {
   SettingOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import { Avatar, Button, Divider, Drawer, Dropdown, Flex, Layout, Menu, Tag, Typography } from 'antd';
+import { Avatar, Button, Drawer, Dropdown, Flex, Layout, Menu, Tag, Typography } from 'antd';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';

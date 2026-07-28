@@ -12,7 +12,7 @@ import {
 } from '@ant-design/icons';
 import { Alert, Avatar, Button, Collapse, Flex, Input, Select, Spin, Tag, Tooltip, Typography, message } from 'antd';
 import { useRouter } from 'next/navigation';
-import { forwardRef, useEffect, useMemo, useState } from 'react';
+import { forwardRef, useMemo, useState, useSyncExternalStore } from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -33,6 +33,7 @@ type VisibleMessage = {
 };
 
 const unavailableMessage = 'Não foi possível enviar a mensagem. Tente novamente.';
+const subscribeToBrowser = () => () => undefined;
 const AccessibleSenderInput = forwardRef<
   React.ComponentRef<typeof Input.TextArea>,
   React.ComponentProps<typeof Input.TextArea>
@@ -108,12 +109,8 @@ export default function ChatClient({
   const [changingModel, setChangingModel] = useState(false);
   const [content, setContent] = useState('');
   const [error, setError] = useState<string>();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(subscribeToBrowser, () => true, () => false);
   const [messageApi, contextHolder] = message.useMessage();
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const items = useMemo<BubbleItemType[]>(() => {
     const chronological = [...messages].sort((first, second) => first.createdAt.localeCompare(second.createdAt));
