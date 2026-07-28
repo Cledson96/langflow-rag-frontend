@@ -1,6 +1,17 @@
 server {
     listen 80;
     server_name app-langflow.cledson.com.br;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name app-langflow.cledson.com.br;
+
+    ssl_certificate /etc/letsencrypt/live/app-langflow.cledson.com.br/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/app-langflow.cledson.com.br/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
     location / {
         proxy_pass http://127.0.0.1:__APP_PORT__;
