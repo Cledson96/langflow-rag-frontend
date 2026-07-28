@@ -12,6 +12,24 @@ vi.mock('next/navigation', () => ({
 
 const projectId = '94e5d171-1db4-4a92-8c72-4da2c1f51fd2';
 const conversationId = '7e3bf271-6a53-4d60-bc6d-f1e117335f33';
+const conversation = {
+  createdAt: '2026-07-27T10:00:00.000Z',
+  createdByUserId: 'user-1',
+  id: conversationId,
+  modelId: 'openai/gpt-4.1-mini',
+  projectId,
+  title: 'Conversa',
+  updatedAt: '2026-07-27T10:00:00.000Z',
+};
+const models = [{
+  createdAt: '2026-07-27T10:00:00.000Z',
+  enabled: true,
+  id: 'openai/gpt-4.1-mini',
+  isDefault: true,
+  name: 'GPT-4.1 Mini',
+  provider: 'OpenAI',
+  updatedAt: '2026-07-27T10:00:00.000Z',
+}];
 
 describe('accessible product entry points', () => {
   it('labels authentication fields and names chat submission while defining the page title', () => {
@@ -27,7 +45,13 @@ describe('accessible product entry points', () => {
     render(
       <>
         <LoginForm />
-        <ChatClient conversationId={conversationId} initialMessages={[]} projectId={projectId} />
+        <ChatClient
+          conversation={conversation}
+          conversations={[conversation]}
+          initialMessages={[]}
+          models={models}
+          projectId={projectId}
+        />
       </>,
     );
 

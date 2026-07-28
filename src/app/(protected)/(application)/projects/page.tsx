@@ -8,7 +8,7 @@ export default async function ProjectsPage() {
   const token = await readSessionToken();
 
   if (token === undefined) {
-    return <Alert message="Sessão não encontrada." type="error" />;
+    return <Alert title="Sessão não encontrada." type="error" />;
   }
 
   const projects = await createBackendClient(fetch).getProjects(token);

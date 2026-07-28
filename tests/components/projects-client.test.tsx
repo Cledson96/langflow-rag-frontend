@@ -28,16 +28,18 @@ describe('ProjectsClient', () => {
   it('shows an empty state when there are no projects', () => {
     render(<ProjectsClient initialProjects={[]} />);
 
-    expect(screen.getByText('Nenhum projeto ainda.')).toBeVisible();
+    expect(screen.getByText(/Crie seu primeiro projeto/)).toBeVisible();
   });
 
   it('opens the project form modal from the create-project action', async () => {
     const user = userEvent.setup();
     render(<ProjectsClient initialProjects={[]} />);
 
-    await user.click(screen.getByRole('button', { name: 'Criar projeto' }));
+    const openButton = screen.getAllByText('Criar projeto').find((element) => element.closest('button'))?.closest('button');
+    expect(openButton).not.toBeNull();
+    await user.click(openButton as HTMLButtonElement);
 
-    expect(screen.getByText('Criar projeto', { selector: '.ant-modal-title' })).toBeInTheDocument();
+    expect(screen.getByText('Novo projeto', { selector: '.ant-modal-title span' })).toBeInTheDocument();
     expect(screen.getByLabelText('Nome do projeto')).toBeInTheDocument();
     expect(screen.getByLabelText('Slug')).toBeInTheDocument();
   });
@@ -49,14 +51,15 @@ describe('ProjectsClient', () => {
     );
     render(<ProjectsClient initialProjects={[]} />);
 
-    await user.click(screen.getByRole('button', { name: 'Criar projeto' }));
+    const openButton = screen.getAllByText('Criar projeto').find((element) => element.closest('button'))?.closest('button');
+    expect(openButton).not.toBeNull();
+    await user.click(openButton as HTMLButtonElement);
     await user.type(screen.getByLabelText('Nome do projeto'), project.name);
-    await user.type(screen.getByLabelText('Slug'), project.slug);
-    const createButton = screen.getByText('Criar').closest('button');
+    const createButton = screen.getAllByText('Criar projeto').find((element) => element.closest('.ant-modal'))?.closest('button');
     expect(createButton).not.toBeNull();
     await user.click(createButton as HTMLButtonElement);
 
-    expect(await screen.findByText(project.name, { selector: 'a' })).toHaveAttribute('href', `/projects/${project.id}`);
+    expect((await screen.findByText(project.name)).closest('a')).toHaveAttribute('href', `/projects/${project.id}`);
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith('/api/projects', {
         body: JSON.stringify({ name: project.name, slug: project.slug }),
@@ -77,10 +80,11 @@ describe('ProjectsClient', () => {
     );
     render(<ProjectsClient initialProjects={[]} />);
 
-    await user.click(screen.getByRole('button', { name: 'Criar projeto' }));
+    const openButton = screen.getAllByText('Criar projeto').find((element) => element.closest('button'))?.closest('button');
+    expect(openButton).not.toBeNull();
+    await user.click(openButton as HTMLButtonElement);
     await user.type(screen.getByLabelText('Nome do projeto'), project.name);
-    await user.type(screen.getByLabelText('Slug'), project.slug);
-    const createButton = screen.getByText('Criar').closest('button');
+    const createButton = screen.getAllByText('Criar projeto').find((element) => element.closest('.ant-modal'))?.closest('button');
     expect(createButton).not.toBeNull();
     await user.click(createButton as HTMLButtonElement);
     await user.click(createButton as HTMLButtonElement);
@@ -117,7 +121,15 @@ describe('CreateConversationModal', () => {
       ),
     );
 
-    render(<CreateConversationModal open projectId={project.id} onCancel={vi.fn()} />);
+    render(<CreateConversationModal models={[{
+      createdAt: '2026-07-27T10:00:00.000Z',
+      enabled: true,
+      id: 'openai/gpt-4.1-mini',
+      isDefault: true,
+      name: 'GPT-4.1 Mini',
+      provider: 'OpenAI',
+      updatedAt: '2026-07-27T10:00:00.000Z',
+    }]} open projectId={project.id} onCancel={vi.fn()} />);
 
     await user.type(screen.getByLabelText('Título'), 'Dúvidas iniciais');
     const createButton = screen.getAllByText('Criar conversa').find((element) => element.closest('button'))?.closest('button');
@@ -141,7 +153,15 @@ describe('CreateConversationModal', () => {
         resolveRequest = resolve;
       }),
     );
-    render(<CreateConversationModal open projectId={project.id} onCancel={vi.fn()} />);
+    render(<CreateConversationModal models={[{
+      createdAt: '2026-07-27T10:00:00.000Z',
+      enabled: true,
+      id: 'openai/gpt-4.1-mini',
+      isDefault: true,
+      name: 'GPT-4.1 Mini',
+      provider: 'OpenAI',
+      updatedAt: '2026-07-27T10:00:00.000Z',
+    }]} open projectId={project.id} onCancel={vi.fn()} />);
 
     await user.type(screen.getByLabelText('Título'), 'Dúvidas iniciais');
     const createButton = screen.getAllByText('Criar conversa').find((element) => element.closest('button'))?.closest('button');

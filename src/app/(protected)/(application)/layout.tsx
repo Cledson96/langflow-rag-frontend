@@ -1,5 +1,4 @@
 import AppShell from '@/components/layout/app-shell';
-import ProjectSidebar from '@/components/layout/project-sidebar';
 import { readSessionToken } from '@/lib/session';
 import { createBackendClient } from '@/services/backend-client';
 
@@ -10,7 +9,8 @@ export default async function ProtectedApplicationLayout({ children }: Readonly<
     return children;
   }
 
-  const projects = await createBackendClient(fetch).getProjects(token);
+  const client = createBackendClient(fetch);
+  const [projects, user] = await Promise.all([client.getProjects(token), client.getMe(token)]);
 
-  return <AppShell sidebar={<ProjectSidebar projects={projects} />}>{children}</AppShell>;
+  return <AppShell projects={projects} user={user}>{children}</AppShell>;
 }

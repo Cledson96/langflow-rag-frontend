@@ -121,8 +121,9 @@ describe('project BFF routes', () => {
     );
   });
 
-  it('rejects a model outside the frontend allowlist before calling the backend', async () => {
-    const fetcher = vi.fn<typeof fetch>();
+  it('accepts a model selected from the dynamic backend catalog', async () => {
+    const dynamicConversation = { ...conversation, modelId: 'openai/gpt-4.1' };
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse(dynamicConversation, 201));
     vi.stubGlobal('fetch', fetcher);
 
     const response = await createConversation(
@@ -133,8 +134,8 @@ describe('project BFF routes', () => {
       { params: Promise.resolve({ projectId }) },
     );
 
-    expect(response.status).toBe(400);
-    await expect(response.json()).resolves.toEqual({ error: 'Dados da conversa inválidos.' });
-    expect(fetcher).not.toHaveBeenCalled();
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({ conversation: dynamicConversation });
+    expect(fetcher).toHaveBeenCalledOnce();
   });
 });

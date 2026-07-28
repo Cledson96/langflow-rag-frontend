@@ -10,10 +10,14 @@ import type {
   CreateProjectInput,
   CredentialsInput,
   Message,
+  AIModel,
+  CreateModelInput,
   Project,
   RegisterInput,
   SendMessageInput,
   SendMessageResponse,
+  UpdateConversationModelInput,
+  UpdateModelInput,
   User,
 } from '@/types/api';
 import {
@@ -23,10 +27,14 @@ import {
   createProjectInputSchema,
   credentialsInputSchema,
   messageSchema,
+  modelSchema,
   projectSchema,
   registerInputSchema,
   sendMessageInputSchema,
   sendMessageResponseSchema,
+  createModelInputSchema,
+  updateConversationModelInputSchema,
+  updateModelInputSchema,
   userSchema,
 } from '@/types/schemas';
 
@@ -49,7 +57,7 @@ export class BackendApiError extends Error {
 
 type RequestOptions<TSchema extends z.ZodType> = {
   body?: unknown;
-  method?: 'GET' | 'POST';
+  method?: 'GET' | 'PATCH' | 'POST';
   path: string;
   schema: TSchema;
   token?: string;
@@ -172,6 +180,44 @@ export function createBackendClient(
         method: 'POST',
         path: `${projectPath(projectId)}/conversations`,
         schema: conversationSchema,
+        token,
+      });
+    },
+    async updateConversationModel(
+      token: string,
+      projectId: string,
+      conversationId: string,
+      input: UpdateConversationModelInput,
+    ): Promise<Conversation> {
+      return request({
+        body: updateConversationModelInputSchema.parse(input),
+        method: 'PATCH',
+        path: conversationPath(projectId, conversationId),
+        schema: conversationSchema,
+        token,
+      });
+    },
+    async getModels(token: string): Promise<AIModel[]> {
+      return request({ path: '/models', schema: z.array(modelSchema), token });
+    },
+    async getAdminModels(token: string): Promise<AIModel[]> {
+      return request({ path: '/admin/models', schema: z.array(modelSchema), token });
+    },
+    async createModel(token: string, input: CreateModelInput): Promise<AIModel> {
+      return request({
+        body: createModelInputSchema.parse(input),
+        method: 'POST',
+        path: '/admin/models',
+        schema: modelSchema,
+        token,
+      });
+    },
+    async updateModel(token: string, modelId: string, input: UpdateModelInput): Promise<AIModel> {
+      return request({
+        body: updateModelInputSchema.parse(input),
+        method: 'PATCH',
+        path: `/admin/models/${encodeURIComponent(modelId)}`,
+        schema: modelSchema,
         token,
       });
     },

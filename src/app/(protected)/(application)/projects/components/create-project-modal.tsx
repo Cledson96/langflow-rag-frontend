@@ -1,7 +1,8 @@
 'use client';
 
-import { Alert, Button, Form, Input, Modal } from 'antd';
-import { useState } from 'react';
+import { FolderAddOutlined } from '@ant-design/icons';
+import { Alert, Button, Form, Input, Modal, Typography } from 'antd';
+import { useRef, useState } from 'react';
 
 import { projectSchema } from '@/types/schemas';
 import type { Project } from '@/types/api';
@@ -29,11 +30,22 @@ export default function CreateProjectModal({ onCancel, onCreated, open }: Readon
   const [error, setError] = useState<string>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [form] = Form.useForm<ProjectFormValues>();
+  const slugEdited = useRef(false);
 
   function close(): void {
     form.resetFields();
+    slugEdited.current = false;
     setError(undefined);
     onCancel();
+  }
+
+  function createSlug(value: string): string {
+    return value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
   }
 
   async function onFinish(values: ProjectFormValues): Promise<void> {
@@ -70,17 +82,42 @@ export default function CreateProjectModal({ onCancel, onCreated, open }: Readon
   }
 
   return (
-    <Modal destroyOnHidden footer={null} onCancel={close} open={open} title="Criar projeto">
-      {error ? <Alert message={error} showIcon type="error" style={{ marginBottom: 16 }} /> : null}
+    <Modal
+      destroyOnHidden
+      footer={null}
+      onCancel={close}
+      open={open}
+      title={<span><FolderAddOutlined /> &nbsp;Novo projeto</span>}
+      width={520}
+    >
+      <Typography.Paragraph type="secondary">
+        Um projeto separa conversas, memória e documentos de uma área de trabalho.
+      </Typography.Paragraph>
+      {error ? <Alert title={error} showIcon type="error" style={{ marginBottom: 16 }} /> : null}
       <Form<ProjectFormValues> form={form} layout="vertical" onFinish={onFinish}>
         <Form.Item label="Nome do projeto" name="name" rules={[{ required: true, message: 'Informe o nome do projeto.' }]}>
-          <Input autoFocus maxLength={120} />
+          <Input
+            autoFocus
+            maxLength={120}
+            onChange={(event) => {
+              if (!slugEdited.current) form.setFieldValue('slug', createSlug(event.target.value));
+            }}
+            placeholder="Ex.: Cobrança inteligente"
+            size="large"
+          />
         </Form.Item>
         <Form.Item label="Slug" name="slug" rules={[{ required: true, message: 'Informe o slug do projeto.' }]}>
-          <Input maxLength={120} />
+          <Input
+            maxLength={120}
+            onChange={() => {
+              slugEdited.current = true;
+            }}
+            placeholder="cobranca-inteligente"
+            size="large"
+          />
         </Form.Item>
-        <Button disabled={isSubmitting} htmlType="submit" loading={isSubmitting} type="primary">
-          Criar
+        <Button block disabled={isSubmitting} htmlType="submit" loading={isSubmitting} size="large" type="primary">
+          Criar projeto
         </Button>
       </Form>
     </Modal>

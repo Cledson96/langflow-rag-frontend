@@ -14,3 +14,24 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: vi.fn(),
   })),
 });
+
+vi.stubGlobal(
+  'ResizeObserver',
+  class {
+    disconnect() {}
+    observe() {}
+    unobserve() {}
+  },
+);
+
+vi.stubGlobal(
+  'IntersectionObserver',
+  class {
+    disconnect() {}
+    observe() {}
+    takeRecords() {
+      return [];
+    }
+    unobserve() {}
+  },
+);

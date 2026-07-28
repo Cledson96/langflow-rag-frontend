@@ -7,7 +7,7 @@ import { POST as register } from '@/app/api/auth/register/route';
 
 const apiBaseUrl = 'https://api.example.test';
 const sessionCookieName = 'langflow_rag_session';
-const user = { email: 'ada@example.com', id: 'user-1', name: 'Ada' };
+const user = { email: 'ada@example.com', id: 'user-1', name: 'Ada', role: 'USER' as const };
 
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {

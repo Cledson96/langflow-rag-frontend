@@ -10,7 +10,7 @@ function createFetcher(response: Response): Fetcher {
 describe('createBackendClient', () => {
   it('logs in without sending an authorization header before a session exists', async () => {
     const fetcher = createFetcher(
-      new Response(JSON.stringify({ token: 'new-session-token', user: { email: 'ada@example.com', id: 'user-1', name: 'Ada' } }), {
+      new Response(JSON.stringify({ token: 'new-session-token', user: { email: 'ada@example.com', id: 'user-1', name: 'Ada', role: 'USER' } }), {
         headers: { 'content-type': 'application/json' },
         status: 200,
       }),
@@ -18,7 +18,7 @@ describe('createBackendClient', () => {
 
     await expect(createBackendClient(fetcher, apiBaseUrl).login({ email: 'ada@example.com', password: 'correct-password' })).resolves.toEqual({
       token: 'new-session-token',
-      user: { email: 'ada@example.com', id: 'user-1', name: 'Ada' },
+      user: { email: 'ada@example.com', id: 'user-1', name: 'Ada', role: 'USER' },
     });
 
     const request = vi.mocked(fetcher).mock.calls[0];

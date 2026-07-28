@@ -1,11 +1,20 @@
 import { z } from 'zod';
 
-import { allowedModelIds } from '@/config/models';
-
 export const userSchema = z.object({
   email: z.string().email(),
   id: z.string().min(1),
   name: z.string().nullable(),
+  role: z.enum(['USER', 'ADMIN']),
+});
+
+export const modelSchema = z.object({
+  createdAt: z.string().datetime(),
+  enabled: z.boolean(),
+  id: z.string().min(1),
+  isDefault: z.boolean(),
+  name: z.string().min(1),
+  provider: z.string().min(1),
+  updatedAt: z.string().datetime(),
 });
 
 export const projectSchema = z.object({
@@ -27,6 +36,14 @@ export const conversationSchema = z.object({
 export const messageMetadataSchema = z
   .object({
     runId: z.string().optional(),
+    sources: z
+      .array(
+        z.object({
+          displayName: z.string(),
+          name: z.string().optional(),
+        }),
+      )
+      .optional(),
     source: z
       .object({
         displayName: z.string().optional(),
@@ -64,9 +81,26 @@ export const createProjectInputSchema = z.object({
 });
 
 export const createConversationInputSchema = z.object({
-  modelId: z.enum(allowedModelIds),
+  modelId: z.string().trim().min(1).max(200),
   title: z.string().trim().min(1).max(200).optional(),
 });
+
+export const updateConversationModelInputSchema = z.object({
+  modelId: z.string().trim().min(1).max(200),
+});
+
+export const createModelInputSchema = z.object({
+  enabled: z.boolean().optional(),
+  id: z.string().trim().min(3).max(200),
+  isDefault: z.boolean().optional(),
+  name: z.string().trim().min(1).max(120),
+  provider: z.string().trim().min(1).max(80),
+});
+
+export const updateModelInputSchema = createModelInputSchema
+  .omit({ id: true })
+  .partial()
+  .refine((value) => Object.keys(value).length > 0);
 
 export const credentialsInputSchema = z.object({
   email: z.string().email(),

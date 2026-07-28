@@ -1,7 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { getProjects, readSessionToken, redirect } = vi.hoisted(() => ({
+const { getMe, getProjects, readSessionToken, redirect } = vi.hoisted(() => ({
+  getMe: vi.fn(),
   getProjects: vi.fn(),
   readSessionToken: vi.fn(),
   redirect: vi.fn(),
@@ -10,10 +11,14 @@ const { getProjects, readSessionToken, redirect } = vi.hoisted(() => ({
 vi.mock('next/link', () => ({
   default: ({ children, href }: Readonly<{ children: React.ReactNode; href: string }>) => <a href={href}>{children}</a>,
 }));
-vi.mock('next/navigation', () => ({ redirect }));
+vi.mock('next/navigation', () => ({
+  redirect,
+  usePathname: () => '/projects',
+  useRouter: () => ({ refresh: vi.fn(), replace: vi.fn() }),
+}));
 vi.mock('@/lib/session', () => ({ readSessionToken }));
 vi.mock('@/services/backend-client', () => ({
-  createBackendClient: vi.fn(() => ({ getProjects })),
+  createBackendClient: vi.fn(() => ({ getMe, getProjects })),
 }));
 
 import ProtectedLayout from '@/app/(protected)/layout';
@@ -21,9 +26,11 @@ import ProtectedLayout from '@/app/(protected)/layout';
 describe('ProtectedLayout', () => {
   beforeEach(() => {
     getProjects.mockReset();
+    getMe.mockReset();
     readSessionToken.mockReset();
     redirect.mockReset();
     readSessionToken.mockResolvedValue('session-token');
+    getMe.mockResolvedValue({ email: 'ada@example.com', id: 'user-1', name: 'Ada', role: 'USER' });
   });
 
   it('keeps the session guard independent from sidebar data loading', async () => {

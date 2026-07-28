@@ -1,13 +1,15 @@
 'use client';
 
-import { Alert, Button, Form, Input, Modal, Select } from 'antd';
+import { MessageOutlined } from '@ant-design/icons';
+import { Alert, Button, Form, Input, Modal, Select, Typography } from 'antd';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-import { defaultModelId, modelOptions } from '@/config/models';
 import { conversationSchema } from '@/types/schemas';
+import type { AIModel } from '@/types/api';
 
 type CreateConversationModalProps = {
+  models: AIModel[];
   onCancel: () => void;
   open: boolean;
   projectId: string;
@@ -28,6 +30,7 @@ function errorMessage(body: unknown): string {
 
 export default function CreateConversationModal({
   onCancel,
+  models,
   open,
   projectId,
 }: Readonly<CreateConversationModalProps>) {
@@ -75,16 +78,38 @@ export default function CreateConversationModal({
   }
 
   return (
-    <Modal destroyOnHidden footer={null} onCancel={close} open={open} title="Criar conversa">
-      {error ? <Alert message={error} showIcon type="error" style={{ marginBottom: 16 }} /> : null}
-      <Form<ConversationFormValues> form={form} initialValues={{ modelId: defaultModelId }} layout="vertical" onFinish={onFinish}>
+    <Modal
+      destroyOnHidden
+      footer={null}
+      onCancel={close}
+      open={open}
+      title={<span><MessageOutlined /> &nbsp;Nova conversa</span>}
+      width={520}
+    >
+      <Typography.Paragraph type="secondary">
+        Escolha um título e o modelo inicial. Você poderá trocar o modelo a qualquer momento.
+      </Typography.Paragraph>
+      {error ? <Alert title={error} showIcon type="error" style={{ marginBottom: 16 }} /> : null}
+      <Form<ConversationFormValues>
+        form={form}
+        initialValues={{ modelId: models.find((model) => model.isDefault)?.id ?? models[0]?.id }}
+        layout="vertical"
+        onFinish={onFinish}
+      >
         <Form.Item label="Título" name="title" rules={[{ required: true, message: 'Informe o título da conversa.' }]}>
-          <Input autoFocus maxLength={200} />
+          <Input autoFocus maxLength={200} placeholder="Ex.: Análise do contrato" size="large" />
         </Form.Item>
         <Form.Item label="Modelo" name="modelId" rules={[{ required: true, message: 'Selecione o modelo.' }]}>
-          <Select options={modelOptions} />
+          <Select
+            options={models.map((model) => ({
+              label: `${model.name} · ${model.provider}`,
+              value: model.id,
+            }))}
+            placeholder="Selecione um modelo"
+            size="large"
+          />
         </Form.Item>
-        <Button disabled={isSubmitting} htmlType="submit" loading={isSubmitting} type="primary">
+        <Button block disabled={isSubmitting} htmlType="submit" loading={isSubmitting} size="large" type="primary">
           Criar conversa
         </Button>
       </Form>
