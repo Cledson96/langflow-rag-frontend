@@ -2,7 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import ChatClient from '@/app/(protected)/(application)/projects/[projectId]/conversations/[conversationId]/chat-client';
+import ChatClient from '@/app/(protected)/(application)/projects/[projectId]/conversations/[conversationId]/chat-workspace';
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn() }),

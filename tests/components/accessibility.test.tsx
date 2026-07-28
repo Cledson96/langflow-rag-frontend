@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
 import LoginForm from '@/app/(auth)/login/login-form';
-import ChatClient from '@/app/(protected)/(application)/projects/[projectId]/conversations/[conversationId]/chat-client';
+import ChatClient from '@/app/(protected)/(application)/projects/[projectId]/conversations/[conversationId]/chat-workspace';
 import { metadata } from '@/app/layout';
 
 vi.mock('next/navigation', () => ({
