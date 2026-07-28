@@ -44,6 +44,15 @@ export const messageMetadataSchema = z
         }),
       )
       .optional(),
+    tools: z
+      .array(
+        z.object({
+          label: z.string(),
+          name: z.string(),
+          status: z.enum(['completed', 'failed']),
+        }),
+      )
+      .optional(),
     source: z
       .object({
         displayName: z.string().optional(),

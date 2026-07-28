@@ -9,6 +9,7 @@ import {
   PlusOutlined,
   RobotOutlined,
   UserOutlined,
+  ToolOutlined,
 } from '@ant-design/icons';
 import { Alert, Avatar, Button, Collapse, Flex, Input, Select, Spin, Tag, Tooltip, Typography, message } from 'antd';
 import { useRouter } from 'next/navigation';
@@ -67,11 +68,25 @@ function usageText(messageItem: Message): string | undefined {
 function AssistantFooter({ item }: Readonly<{ item: Message }>) {
   const visible = visibleMessage(item);
   const usage = usageText(item);
+  const tools = item.metadata?.tools ?? [];
 
-  if (visible.sources.length === 0 && usage === undefined) return null;
+  if (visible.sources.length === 0 && tools.length === 0 && usage === undefined) return null;
 
   return (
     <div className="message-footer">
+      {tools.length > 0 ? (
+        <Flex gap={6} wrap>
+          {tools.map((tool, index) => (
+            <Tag
+              color={tool.status === 'completed' ? 'success' : 'error'}
+              icon={<ToolOutlined />}
+              key={`${tool.name}-${index}`}
+            >
+              {tool.label}
+            </Tag>
+          ))}
+        </Flex>
+      ) : null}
       {visible.sources.length > 0 ? (
         <Collapse
           ghost
