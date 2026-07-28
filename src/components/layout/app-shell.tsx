@@ -9,6 +9,7 @@ import {
   RobotOutlined,
   SettingOutlined,
   UserOutlined,
+  ApiOutlined,
 } from '@ant-design/icons';
 import { Avatar, Button, Drawer, Dropdown, Flex, Layout, Menu, Tag, Typography } from 'antd';
 import Link from 'next/link';
@@ -37,11 +38,18 @@ export default function AppShell({ children, projects, user }: Readonly<AppShell
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const selectedProjectId = pathname.match(/^\/projects\/([^/]+)/)?.[1];
-  const activeMenu = pathname.startsWith('/admin/models') ? 'models' : pathname === '/projects' ? 'projects' : undefined;
+  const activeMenu = pathname.startsWith('/admin/models')
+    ? 'models'
+    : pathname.startsWith('/settings/integrations')
+      ? 'integrations'
+      : pathname === '/projects'
+        ? 'projects'
+        : undefined;
 
   const navigationItems = useMemo(
     () => [
       { icon: <AppstoreOutlined />, key: 'projects', label: <Link href="/projects">Visão geral</Link> },
+      { icon: <ApiOutlined />, key: 'integrations', label: <Link href="/settings/integrations">Integrações</Link> },
       ...(user.role === 'ADMIN'
         ? [{ icon: <SettingOutlined />, key: 'models', label: <Link href="/admin/models">Modelos de IA</Link> }]
         : []),

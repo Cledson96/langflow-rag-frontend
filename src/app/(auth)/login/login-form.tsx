@@ -1,6 +1,7 @@
 'use client';
 
-import { Alert, Button, Card, Form, Input } from 'antd';
+import { GoogleOutlined } from '@ant-design/icons';
+import { Alert, Button, Card, Divider, Form, Input } from 'antd';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -25,7 +26,7 @@ function errorMessage(body: unknown, fallback: string): string {
   return fallback;
 }
 
-export default function LoginForm() {
+export default function LoginForm({ googleError = false }: Readonly<{ googleError?: boolean }>) {
   const router = useRouter();
   const [error, setError] = useState<string>();
 
@@ -53,7 +54,12 @@ export default function LoginForm() {
 
   return (
     <Card title="Entrar" style={{ margin: '4rem auto', maxWidth: 420 }}>
+      {googleError ? <Alert title="Não foi possível entrar com o Google. Tente novamente." type="error" showIcon style={{ marginBottom: 16 }} /> : null}
       {error ? <Alert title={error} type="error" showIcon style={{ marginBottom: 16 }} /> : null}
+      <Button block href="/api/auth/google/start" icon={<GoogleOutlined />} size="large">
+        Continuar com Google
+      </Button>
+      <Divider plain>ou entre com e-mail</Divider>
       <Form<LoginValues> layout="vertical" onFinish={onFinish}>
         <Form.Item
           label="E-mail"

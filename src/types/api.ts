@@ -14,6 +14,7 @@ import type {
   updateModelInputSchema,
   updateConversationModelInputSchema,
   userSchema,
+  googleConnectionSchema,
 } from '@/types/schemas';
 import type { z } from 'zod';
 
@@ -33,3 +34,4 @@ export type SendMessageResponse = z.infer<typeof sendMessageResponseSchema>;
 export type CreateModelInput = z.infer<typeof createModelInputSchema>;
 export type UpdateModelInput = z.infer<typeof updateModelInputSchema>;
 export type UpdateConversationModelInput = z.infer<typeof updateConversationModelInputSchema>;
+export type GoogleConnection = z.infer<typeof googleConnectionSchema>;

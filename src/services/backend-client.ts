@@ -19,6 +19,7 @@ import type {
   UpdateConversationModelInput,
   UpdateModelInput,
   User,
+  GoogleConnection,
 } from '@/types/api';
 import {
   authResponseSchema,
@@ -36,6 +37,9 @@ import {
   updateConversationModelInputSchema,
   updateModelInputSchema,
   userSchema,
+  authorizationUrlSchema,
+  disconnectGoogleResponseSchema,
+  googleConnectionSchema,
 } from '@/types/schemas';
 
 const requestTimeoutMs = 30_000;
@@ -57,7 +61,7 @@ export class BackendApiError extends Error {
 
 type RequestOptions<TSchema extends z.ZodType> = {
   body?: unknown;
-  method?: 'GET' | 'PATCH' | 'POST';
+  method?: 'DELETE' | 'GET' | 'PATCH' | 'POST';
   path: string;
   schema: TSchema;
   token?: string;
@@ -154,6 +158,40 @@ export function createBackendClient(
         method: 'POST',
         path: '/auth/login',
         schema: authResponseSchema,
+      });
+    },
+    async getGoogleLoginUrl(): Promise<string> {
+      const result = await request({
+        path: '/auth/google/start',
+        schema: authorizationUrlSchema,
+      });
+      return result.url;
+    },
+    async exchangeGoogleLogin(code: string): Promise<AuthResponse> {
+      return request({
+        body: { code: z.string().min(1).parse(code) },
+        method: 'POST',
+        path: '/auth/google/exchange',
+        schema: authResponseSchema,
+      });
+    },
+    async getGoogleConnection(token: string): Promise<GoogleConnection> {
+      return request({ path: '/integrations/google', schema: googleConnectionSchema, token });
+    },
+    async getGoogleConnectionUrl(token: string): Promise<string> {
+      const result = await request({
+        path: '/integrations/google/start',
+        schema: authorizationUrlSchema,
+        token,
+      });
+      return result.url;
+    },
+    async disconnectGoogle(token: string): Promise<void> {
+      await request({
+        method: 'DELETE',
+        path: '/integrations/google',
+        schema: disconnectGoogleResponseSchema,
+        token,
       });
     },
     async getMe(token: string): Promise<User> {

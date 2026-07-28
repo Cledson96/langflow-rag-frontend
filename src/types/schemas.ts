@@ -75,6 +75,24 @@ export const authResponseSchema = z.object({
   user: userSchema,
 });
 
+export const authorizationUrlSchema = z.object({
+  url: z.string().url(),
+});
+
+export const googleConnectionSchema = z.discriminatedUnion('connected', [
+  z.object({ connected: z.literal(false) }),
+  z.object({
+    connected: z.literal(true),
+    email: z.string().email(),
+    scopes: z.array(z.string()),
+    updatedAt: z.string().datetime(),
+  }),
+]);
+
+export const disconnectGoogleResponseSchema = z.object({
+  disconnected: z.literal(true),
+});
+
 export const createProjectInputSchema = z.object({
   name: z.string().trim().min(1).max(120),
   slug: z.string().trim().min(1).max(120),
