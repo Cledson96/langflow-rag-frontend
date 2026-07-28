@@ -4,6 +4,7 @@ import { POST as login } from '@/app/api/auth/login/route';
 import { POST as logout } from '@/app/api/auth/logout/route';
 import { GET as me } from '@/app/api/auth/me/route';
 import { POST as register } from '@/app/api/auth/register/route';
+import { GET as googleCallback } from '@/app/api/auth/google/callback/route';
 
 const apiBaseUrl = 'https://api.example.test';
 const sessionCookieName = 'langflow_rag_session';
@@ -108,5 +109,15 @@ describe('auth BFF routes', () => {
       `${apiBaseUrl}/me`,
       expect.objectContaining({ headers: expect.objectContaining({ authorization: 'Bearer jwt-secret' }) }),
     );
+  });
+
+  it('redirects a Google login to the configured public URL instead of the internal container host', async () => {
+    vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockResolvedValue(jsonResponse({ token: 'google-jwt', user })));
+    const request = new NextRequest('https://0.0.0.0:3000/api/auth/google/callback?code=handoff-code');
+
+    const response = await googleCallback(request);
+
+    expect(response.headers.get('location')).toBe('https://app.example.test/projects');
+    expect(response.headers.get('set-cookie')).toContain(`${sessionCookieName}=google-jwt`);
   });
 });
