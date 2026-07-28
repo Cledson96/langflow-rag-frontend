@@ -98,5 +98,22 @@ jobs:
           VPS_USER: ${{ secrets.VPS_USER }}
         run: |
           tar -czf /tmp/infra.tgz docker-compose.yml deploy scripts
-          scp -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" -i ~/.ssh/id_ed25519 -P "$VPS_PORT" /tmp/infra.tgz /tmp/app.env /tmp/app.env.production /tmp/ghcr.env "$VPS_USER@$VPS_HOST:/tmp/"
-          ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" -i ~/.ssh/id_ed25519 -p "$VPS_PORT" "$VPS_USER@$VPS_HOST" "set -euo pipefail; sudo mkdir -p '$DEPLOY_PATH'; sudo tar -xzf /tmp/infra.tgz -C '$DEPLOY_PATH'; sudo mv /tmp/app.env '$DEPLOY_PATH/.env'; sudo mv /tmp/app.env.production '$DEPLOY_PATH/.env.production'; sudo mv /tmp/ghcr.env '$DEPLOY_PATH/.deploy-secrets'; sudo chmod 600 '$DEPLOY_PATH/.deploy-secrets'; sudo DEPLOY_PATH='$DEPLOY_PATH' FRONTEND_IMAGE='${{ env.IMAGE }}:${{ inputs.image_tag || github.sha }}' APP_PORT='3020' bash '$DEPLOY_PATH/scripts/deploy-docker.sh'"
+          ssh_options=(-o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" -o ConnectTimeout=20 -o ConnectionAttempts=2 -i ~/.ssh/id_ed25519)
+          uploaded=false
+          for attempt in 1 2 3 4 5; do
+            if scp "${ssh_options[@]}" -P "$VPS_PORT" /tmp/infra.tgz /tmp/app.env /tmp/app.env.production /tmp/ghcr.env "$VPS_USER@$VPS_HOST:/tmp/"; then
+              uploaded=true
+              break
+            fi
+            sleep 5
+          done
+          test "$uploaded" = true
+          deployed=false
+          for attempt in 1 2 3 4 5; do
+            if ssh "${ssh_options[@]}" -p "$VPS_PORT" "$VPS_USER@$VPS_HOST" "set -euo pipefail; sudo mkdir -p '$DEPLOY_PATH'; sudo tar -xzf /tmp/infra.tgz -C '$DEPLOY_PATH'; sudo mv /tmp/app.env '$DEPLOY_PATH/.env'; sudo mv /tmp/app.env.production '$DEPLOY_PATH/.env.production'; sudo mv /tmp/ghcr.env '$DEPLOY_PATH/.deploy-secrets'; sudo chmod 600 '$DEPLOY_PATH/.deploy-secrets'; sudo DEPLOY_PATH='$DEPLOY_PATH' FRONTEND_IMAGE='${{ env.IMAGE }}:${{ inputs.image_tag || github.sha }}' APP_PORT='3020' bash '$DEPLOY_PATH/scripts/deploy-docker.sh'"; then
+              deployed=true
+              break
+            fi
+            sleep 5
+          done
+          test "$deployed" = true
