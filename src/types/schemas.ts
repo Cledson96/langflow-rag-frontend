@@ -7,6 +7,44 @@ export const userSchema = z.object({
   role: z.enum(['USER', 'ADMIN']),
 });
 
+export const agentSoulSchema = z.object({
+  companyContext: z.string(),
+  createdAt: z.string().datetime(),
+  id: z.string(),
+  instructions: z.string(),
+  name: z.string(),
+  personality: z.string(),
+  role: z.string(),
+  updatedAt: z.string().datetime(),
+});
+
+export const updateAgentSoulInputSchema = agentSoulSchema
+  .pick({
+    companyContext: true,
+    instructions: true,
+    name: true,
+    personality: true,
+    role: true,
+  })
+  .partial()
+  .refine((value) => Object.keys(value).length > 0);
+
+export const agentMemorySchema = z.object({
+  confidence: z.number().min(0).max(1),
+  content: z.string(),
+  createdAt: z.string().datetime(),
+  createdByUserId: z.string(),
+  id: z.string().uuid(),
+  key: z.string(),
+  kind: z.string(),
+  projectId: z.string().uuid().nullable(),
+  scope: z.enum(['USER', 'PROJECT']),
+  sourceMessageId: z.string().uuid().nullable(),
+  updatedAt: z.string().datetime(),
+});
+
+export const archivedMemoryResponseSchema = z.object({ archived: z.literal(true) });
+
 export const modelSchema = z.object({
   createdAt: z.string().datetime(),
   enabled: z.boolean(),

@@ -20,6 +20,9 @@ import type {
   UpdateModelInput,
   User,
   GoogleConnection,
+  AgentMemory,
+  AgentSoul,
+  UpdateAgentSoulInput,
 } from '@/types/api';
 import {
   authResponseSchema,
@@ -40,6 +43,10 @@ import {
   authorizationUrlSchema,
   disconnectGoogleResponseSchema,
   googleConnectionSchema,
+  agentMemorySchema,
+  agentSoulSchema,
+  archivedMemoryResponseSchema,
+  updateAgentSoulInputSchema,
 } from '@/types/schemas';
 
 const requestTimeoutMs = 30_000;
@@ -196,6 +203,44 @@ export function createBackendClient(
     },
     async getMe(token: string): Promise<User> {
       return request({ path: '/me', schema: userSchema, token });
+    },
+    async getAgentSoul(token: string): Promise<AgentSoul> {
+      return request({ path: '/agent/soul', schema: agentSoulSchema, token });
+    },
+    async updateAgentSoul(token: string, input: UpdateAgentSoulInput): Promise<AgentSoul> {
+      return request({
+        body: updateAgentSoulInputSchema.parse(input),
+        method: 'PATCH',
+        path: '/admin/agent/soul',
+        schema: agentSoulSchema,
+        token,
+      });
+    },
+    async getUserMemories(token: string): Promise<AgentMemory[]> {
+      return request({ path: '/me/memories', schema: z.array(agentMemorySchema), token });
+    },
+    async archiveUserMemory(token: string, memoryId: string): Promise<void> {
+      await request({
+        method: 'DELETE',
+        path: `/me/memories/${encodeURIComponent(identifierSchema.parse(memoryId))}`,
+        schema: archivedMemoryResponseSchema,
+        token,
+      });
+    },
+    async getProjectMemories(token: string, projectId: string): Promise<AgentMemory[]> {
+      return request({
+        path: `${projectPath(projectId)}/memories`,
+        schema: z.array(agentMemorySchema),
+        token,
+      });
+    },
+    async archiveProjectMemory(token: string, projectId: string, memoryId: string): Promise<void> {
+      await request({
+        method: 'DELETE',
+        path: `${projectPath(projectId)}/memories/${encodeURIComponent(identifierSchema.parse(memoryId))}`,
+        schema: archivedMemoryResponseSchema,
+        token,
+      });
     },
     async getProjects(token: string): Promise<Project[]> {
       return request({ path: '/projects', schema: z.array(projectSchema), token });

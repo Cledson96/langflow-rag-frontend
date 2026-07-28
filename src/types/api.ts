@@ -15,6 +15,9 @@ import type {
   updateConversationModelInputSchema,
   userSchema,
   googleConnectionSchema,
+  agentMemorySchema,
+  agentSoulSchema,
+  updateAgentSoulInputSchema,
 } from '@/types/schemas';
 import type { z } from 'zod';
 
@@ -35,3 +38,6 @@ export type CreateModelInput = z.infer<typeof createModelInputSchema>;
 export type UpdateModelInput = z.infer<typeof updateModelInputSchema>;
 export type UpdateConversationModelInput = z.infer<typeof updateConversationModelInputSchema>;
 export type GoogleConnection = z.infer<typeof googleConnectionSchema>;
+export type AgentMemory = z.infer<typeof agentMemorySchema>;
+export type AgentSoul = z.infer<typeof agentSoulSchema>;
+export type UpdateAgentSoulInput = z.infer<typeof updateAgentSoulInputSchema>;

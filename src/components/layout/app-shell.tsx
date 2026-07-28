@@ -10,6 +10,7 @@ import {
   SettingOutlined,
   UserOutlined,
   ApiOutlined,
+  BulbOutlined,
 } from '@ant-design/icons';
 import { Avatar, Button, Drawer, Dropdown, Flex, Layout, Menu, Tag, Typography } from 'antd';
 import Link from 'next/link';
@@ -42,6 +43,8 @@ export default function AppShell({ children, projects, user }: Readonly<AppShell
     ? 'models'
     : pathname.startsWith('/settings/integrations')
       ? 'integrations'
+      : pathname.startsWith('/settings/memory')
+        ? 'memory'
       : pathname === '/projects'
         ? 'projects'
         : undefined;
@@ -50,6 +53,7 @@ export default function AppShell({ children, projects, user }: Readonly<AppShell
     () => [
       { icon: <AppstoreOutlined />, key: 'projects', label: <Link href="/projects">Visão geral</Link> },
       { icon: <ApiOutlined />, key: 'integrations', label: <Link href="/settings/integrations">Integrações</Link> },
+      { icon: <BulbOutlined />, key: 'memory', label: <Link href="/settings/memory">Nexo e memórias</Link> },
       ...(user.role === 'ADMIN'
         ? [{ icon: <SettingOutlined />, key: 'models', label: <Link href="/admin/models">Modelos de IA</Link> }]
         : []),
